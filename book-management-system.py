@@ -23,8 +23,13 @@ def view_library_catlog():
 
 #4.2 adding book to library catlog
 def add_book_to_library_catlog(book_id, book_title, book_author):
-    library_catlog.append({"id": book_id, "title": book_title, "author": book_author})
-    view_library_catlog()
+    if book_id not in available_books:
+        library_catlog.append({"id": book_id, "title": book_title, "author": book_author})
+        available_books.add(book_id)
+        print(f"The book {book_title} added to catlog.")
+        #view_library_catlog()
+    else:
+        print(f"The book {book_title} is already in use.")
 
 #4.3 borrow book 
 def borrow_book(user_id, book_id):
@@ -32,20 +37,33 @@ def borrow_book(user_id, book_id):
         if user_id not in borrowed_books:
             borrowed_books[user_id] = set()
         borrowed_books[user_id].add(book_id)
+        available_books.remove(book_id)
         print(f"Book ID {book_id} borrowed by User with {user_id}.")
     else:
         print("The book is currently unavailable.")
 
-#4.return book
+#4.4 return book
 def return_book(user_id, book_id):
     if user_id in borrowed_books and book_id in borrowed_books[user_id]:
         borrowed_books[user_id].remove(book_id)
+        available_books.add(book_id)
         print(f"Book ID {book_id} returned by user ID {user_id}.")
     else:
         print("This book was not borrowed by this user.")
+
+#4.5 view borrowed books by user_id
+def view_borrowed_books(user_id):
+    print("Borrowed Books")
+    if user_id in borrowed_books and borrowed_books[user_id]:
+        for book_id in borrowed_books[user_id]:
+            book = next(book for book in library_catlog if book["id"]==book_id)
+            print(f"ID : {book["id"]}, Title : {book["title"]}")
 
 view_library_catlog()
 add_book_to_library_catlog(4, "The Adventures of Tom Sawyer", "Mark Twain")
 borrow_book(1100, 7)
 borrow_book(1100, 2)
+view_borrowed_books(1100)
+borrow_book(1100, 3)
+view_borrowed_books(1100)
 return_book(1100, 2)
